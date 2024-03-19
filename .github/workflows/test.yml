@@ -20,13 +20,15 @@ jobs:
 
         sudo apt update
         sudo apt install -y -V incus
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3
+        # - name: Setup tmate session
+        #   uses: mxschmitt/action-tmate@v3
     - run: |
+        sudo iptables -I DOCKER-USER -i incusbr0 -j ACCEPT
+        sudo iptables -I DOCKER-USER -o incusbr0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
         sudo incus admin init --auto
         sudo incus launch images:debian/12 target
         sudo incus config device add target host disk source=$PWD path=/host
-        sleep 20
         sudo incus ls
         sudo incus network list
+        sudo incus exec target apt update
 
