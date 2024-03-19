@@ -4,17 +4,32 @@ on: [push, pull_request]
 
 jobs:
   test:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        node-version: [16.x, 18.x, 20.x, 21.x]
-        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: [ubuntu-latest]
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
-    - run: npm test
+    - run: sudo sysctl -w net.ipv4.ip_forward=1
+    - run: sudo sysctl net.ipv4.ip_forward
+    - run: sudo systemctl stop docker.service
+    - run: |
+        sudo curl -fsSL https://pkgs.zabbly.com/key.asc -o /etc/apt/keyrings/zabbly.asc
+        cat <<SOURCES | sudo tee /etc/apt/sources.list.d/zabbly-incus-stable.sources
+        Enabled: yes
+        Types: deb
+        URIs: https://pkgs.zabbly.com/incus/stable
+        Suites: $(. /etc/os-release && echo ${VERSION_CODENAME})
+        Components: main
+        Architectures: $(dpkg --print-architecture)
+        Signed-By: /etc/apt/keyrings/zabbly.asc
+        SOURCES
+
+        sudo apt update
+        sudo apt install -y -V incus
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
+    - run: |
+        sudo incus admin init --auto
+        sudo incus launch images:debian/12 target
+        sudo incus config device add target host disk source=$PWD path=/host
+        sleep 20
+        sudo incus ls
+        sudo incus network list
+
