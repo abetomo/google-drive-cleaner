@@ -6,9 +6,6 @@ jobs:
   test:
     runs-on: [ubuntu-latest]
     steps:
-    - run: sudo sysctl -w net.ipv4.ip_forward=1
-    - run: sudo sysctl net.ipv4.ip_forward
-    - run: sudo systemctl stop docker.service
     - run: |
         sudo curl -fsSL https://pkgs.zabbly.com/key.asc -o /etc/apt/keyrings/zabbly.asc
         cat <<SOURCES | sudo tee /etc/apt/sources.list.d/zabbly-incus-stable.sources
