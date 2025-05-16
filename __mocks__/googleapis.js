@@ -2,7 +2,7 @@
 
 'use strict'
 
-const googleapis = jest.genMockFromModule('googleapis')
+const googleapis = jest.createMockFromModule('googleapis')
 
 // auth
 class JWT {
