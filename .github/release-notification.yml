@@ -1,0 +1,8 @@
+changelog:
+  exclude:
+    authors:
+      - dependabot[bot]
+  categories:
+    - title: "🚀 Highlights"
+      labels:
+        - "important" 
